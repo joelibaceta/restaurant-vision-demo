@@ -1,0 +1,6 @@
+env/
+*.mov
+__pycache__/
+script.py
+data/*.csv
+.DS_Store
