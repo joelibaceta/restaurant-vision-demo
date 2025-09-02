@@ -1,5 +1,4 @@
 env/
-*.mov
 __pycache__/
 script.py
 data/*.csv
