@@ -12,47 +12,49 @@ def _panel(img, title: str, rows: list, topleft=(12,12)):
       {"text": "T1 — 2 personas", "color": (B,G,R)}
     """
     x0, y0 = topleft
-    pad_x, pad_y = 12, 10
-    line_h = 26
-    title_h = 28
+    pad_x, pad_y = 8, 6  # Reducir padding
+    line_h = 20  # Reducir altura de línea
+    title_h = 22  # Reducir altura de título
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    # ancho máximo
-    (tw,_), _ = cv2.getTextSize(title, font, 0.8, 2)
+    # ancho máximo con fuentes más pequeñas
+    (tw,_), _ = cv2.getTextSize(title, font, 0.5, 1)  # Título más pequeño
     max_w = tw
     for r in rows:
-        (w,_), _ = cv2.getTextSize(r["text"], font, 0.65, 2)
+        (w,_), _ = cv2.getTextSize(r["text"], font, 0.4, 1)  # Texto más pequeño
         max_w = max(max_w, w)
     w_box = max_w + pad_x*2
-    h_box = title_h + len(rows)*line_h + pad_y*2 + 6
+    h_box = title_h + len(rows)*line_h + pad_y*2 + 4
 
-    # sombra
+    # sombra más sutil
     shadow = img.copy()
-    cv2.rectangle(shadow, (x0+3, y0+4), (x0+w_box+3, y0+h_box+4), (0,0,0), -1)
-    cv2.addWeighted(shadow, 0.25, img, 0.75, 0, img)
+    cv2.rectangle(shadow, (x0+2, y0+2), (x0+w_box+2, y0+h_box+2), (0,0,0), -1)
+    cv2.addWeighted(shadow, 0.15, img, 0.85, 0, img)
 
-    # fondo
-    cv2.rectangle(img, (x0, y0), (x0+w_box, y0+h_box), (245,245,245), -1)
-    cv2.rectangle(img, (x0, y0), (x0+w_box, y0+h_box), (220,220,220), 1)
+    # fondo más transparente
+    overlay = img.copy()
+    cv2.rectangle(overlay, (x0, y0), (x0+w_box, y0+h_box), (250,250,250), -1)
+    cv2.rectangle(overlay, (x0, y0), (x0+w_box, y0+h_box), (200,200,200), 1)
+    cv2.addWeighted(overlay, 0.6, img, 0.4, 0, img)  # Más transparente
 
-    # título
-    cv2.putText(img, title, (x0+pad_x, y0+pad_y+title_h-9), font, 0.8, (40,40,40), 2, cv2.LINE_AA)
+    # título más pequeño
+    cv2.putText(img, title, (x0+pad_x, y0+pad_y+title_h-6), font, 0.5, (40,40,40), 1, cv2.LINE_AA)
 
-    # separador
+    # separador más sutil
     y = y0 + pad_y + title_h
-    cv2.line(img, (x0+pad_x, y+2), (x0+w_box-pad_x, y+2), (210,210,210), 1, cv2.LINE_AA)
-    y += 8
+    cv2.line(img, (x0+pad_x, y+1), (x0+w_box-pad_x, y+1), (180,180,180), 1, cv2.LINE_AA)
+    y += 6
 
-    # filas
+    # filas con texto más pequeño
     for r in rows:
         y += line_h
-        # badge de color
-        cx = x0 + pad_x - 4
-        cy = y - 12
-        cv2.circle(img, (cx, cy), 6, r["color"], -1, lineType=cv2.LINE_AA)
-        cv2.circle(img, (cx, cy), 6, (255,255,255), 1, lineType=cv2.LINE_AA)
-        # texto
-        cv2.putText(img, r["text"], (x0+pad_x+10, y-8), font, 0.65, (30,30,30), 2, cv2.LINE_AA)
+        # badge de color más pequeño
+        cx = x0 + pad_x - 2
+        cy = y - 10
+        cv2.circle(img, (cx, cy), 4, r["color"], -1, lineType=cv2.LINE_AA)
+        cv2.circle(img, (cx, cy), 4, (255,255,255), 1, lineType=cv2.LINE_AA)
+        # texto más pequeño
+        cv2.putText(img, r["text"], (x0+pad_x+8, y-6), font, 0.4, (30,30,30), 1, cv2.LINE_AA)
 
 def render_people(frame, tracks=None, show_people=True, mesas=None):
     """Dibuja cajas de personas con información de estado.
@@ -166,23 +168,23 @@ def render(frame, mesas, tracks=None, show_people=True, capacities: Optional[dic
         # Color más intuitivo: rojo para ocupada, verde para libre
         if m.occupied:
             color = (0, 0, 200)  # Rojo más intenso
-            status_icon = "🔴"
+            status_icon = ""  # Sin emoji, solo texto
         else:
             color = (0, 150, 0)  # Verde
-            status_icon = "🟢"
+            status_icon = ""  # Sin emoji, solo texto
             
         if capacities and m.id in capacities:
             cap = int(capacities[m.id])
             disp = max(cap - ppl, 0)
             if staff_count > 0:
-                text = f"{status_icon} Mesa {m.id}: {ppl}/{cap} personas (disp: {disp}) + {staff_count} staff"
+                text = f"Mesa {m.id}: {ppl}/{cap} personas (disp: {disp}) + {staff_count} staff"
             else:
-                text = f"{status_icon} Mesa {m.id}: {ppl}/{cap} personas (disp: {disp})"
+                text = f"Mesa {m.id}: {ppl}/{cap} personas (disp: {disp})"
         else:
             if staff_count > 0:
-                text = f"{status_icon} Mesa {m.id}: {ppl} persona{'s' if ppl!=1 else ''} + {staff_count} staff"
+                text = f"Mesa {m.id}: {ppl} persona{'s' if ppl!=1 else ''} + {staff_count} staff"
             else:
-                text = f"{status_icon} Mesa {m.id}: {ppl} persona{'s' if ppl!=1 else ''}"
+                text = f"Mesa {m.id}: {ppl} persona{'s' if ppl!=1 else ''}"
             
         rows.append({"text": text, "color": color})
 
