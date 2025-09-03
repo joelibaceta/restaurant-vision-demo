@@ -3,3 +3,4 @@ __pycache__/
 script.py
 data/*.csv
 .DS_Store
+data/video.mov
