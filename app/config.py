@@ -12,7 +12,7 @@ class AppConfig:
     events_path: str = "data/events.csv"
     output_path: str = "data/out.mp4"
     conf_threshold: float = 0.5
-    display: bool = False
+    display: bool = True  # Cambiar a True por defecto
     save_video: bool = True
 
 
@@ -28,8 +28,10 @@ def parse_args() -> AppConfig:
                        help="Umbral de confianza para detección")
     parser.add_argument("--save_video", default="data/out.mp4", 
                        help="Ruta del video de salida")
-    parser.add_argument("--display", action="store_true", 
-                       help="Mostrar video en ventana")
+    parser.add_argument("--display", action="store_true", default=True,
+                       help="Mostrar video en ventana (por defecto: True)")
+    parser.add_argument("--no-display", dest="display", action="store_false",
+                       help="No mostrar video en ventana")
     parser.add_argument("--events", default="data/events.csv", 
                        help="Archivo CSV para eventos")
     
